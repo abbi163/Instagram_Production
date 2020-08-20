@@ -25,5 +25,5 @@ class data(object):
         
     def user_pwd ():
         
-        return { 'abbijeetanand' : 'Abhi@163'}
+        return { 'username' : 'password'}
 
