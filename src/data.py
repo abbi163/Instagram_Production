@@ -24,6 +24,6 @@ class data(object):
         
         
     def user_pwd ():
-        # 'rat163004': 'Abbi@163', 'rat163006': 'Abbi@163', Verify with other mobile number !!
-        return { 'rat163002' : 'Abbi@163',  "andrea.ananti": 'Abbi@163'}
+        
+        return { 'abbijeetanand' : 'Abhi@163'}
 

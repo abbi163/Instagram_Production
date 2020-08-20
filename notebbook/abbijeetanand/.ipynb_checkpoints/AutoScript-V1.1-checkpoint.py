@@ -1,3 +1,16 @@
+#     This script will automatically select the username to whom to send request everyday! The input will be the hashtag. 
+#     This script will do the following things. 
+    
+#     1. Extract the list of people to send request from SQL file, 
+#     2. Extract my followers and followee list 
+#     3. Look through these list to confirm that the person I am sending request to is not in this list
+#     4. Check if the account is open or close. I will send request only to open account. 
+#     5. Check the model I created and tell whether I should follow them or not.
+#     6. Follow them
+#     7. Like there picture
+#     8. Save the list in database (date, username). 
+#     9. Use this list to unfollow the person where date is of 7 day before the current date. 
+    
 # Change directory
 import os
 os.chdir('C:\\Users\\PC\\Desktop\\Instagram_production')
@@ -12,7 +25,6 @@ from src.FeatureExtraction import featureExtraction
 import sqlite3 as db
 import numpy as np
 import pandas as pd
-from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchElementException
 
 # today date
 today = datetime.today()
@@ -32,7 +44,7 @@ print('Step 1 Completed...')
 L = Instaloader()
 USER = 'deliacarras' # user with login done
 PASSWORD = 'Abhijeet@163' # password of user
-USERNAME = '_hernando_malik' # the username whose details we need to search. 
+USERNAME = 'abbijeetanand' # the username whose details we need to search. 
 L.login(USER, PASSWORD)
 # Extracting list of my follower and followees !!
 profile = Profile.from_username(L.context, USERNAME)
@@ -64,11 +76,12 @@ print('Step 3 completed...')
         
 
 del users
-
+del followers
+del followees
 
 ## Login using my account and checking for profile information
-username = '_hernando_malik'
-_pass = 'Abhijeet@163'
+username = 'abbijeetanand'
+_pass = 'Abhi@163'
 
 insta = InstagramBot(username, _pass)
 insta.login()
@@ -88,33 +101,26 @@ for user in toFollow:
         X = df.iloc[:, :7].values
         model_flag = model.predict(X)[0]
         if model_flag == 0:
-            try:
-                insta.follow(user)
-                insta.likePhotos(2 + np.random.randint(2, 5), user)
-                query = 'INSERT INTO Hernando_Follow_request VALUES ({}{}{}, {}{}{})'.format("'",today.date(),"'", '"',user,'"')
-                c.execute(query)
-                conn.commit()
-                loop_break_flag = 0
-                if loop_break_flag == 30:
-                    print('loop Broken : The End')
-                    break
-                else:
-                    loop_break_flag += 1
-            except (WebDriverException, NoSuchElementException, TimeoutException):
-                pass
+            insta.follow(user)
+            insta.likePhotos(2 + np.random.randint(2, 5), user)
+            query = 'INSERT INTO Hernando_Follow_request VALUES ({}{}{}, {}{}{})'.format("'",today.date(),"'", '"',user,'"')
+            c.execute(query)
+            conn.commit()
+            loop_break_flag = 0
+            if loop_break_flag == 30:
+                print('loop Broken : The End')
+                break
+            else:
+                loop_break_flag += 1
         else:
             pass
 
 # For unfollowing the users who was followed 7 days before. 
 sevenDayBefore = datetime.today() + timedelta(days = -7)
-query = '''SELECT * FROM Hernando_Follow_request WHERE requestDate = "{}"'''.format(sevenDayBefore.date())
+query = '''SELECT * FROM Abhijeet_Follow_request WHERE requestDate = "{}"'''.format(sevenDayBefore.date())
 unfollow = pd.read_sql_query(query, conn)
 toUnfollow = unfollow['username'].values
 for user in toUnfollow:
-    if user in followees:
-        try: 
-            insta.unfollow(user)
-        except NoSuchElementException:
-            print("Check these user manually: ", user)
-    else: 
-        print("These users are not in the followees list: ", user)
+    insta.unfollow(user)
+    
+print('process completed ......')

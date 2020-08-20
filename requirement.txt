@@ -1,0 +1,7 @@
+pandas >= 1.1.0
+numpy >= 1.19.1
+selenium >= 3.141.0
+instaloader >= 4.4.1
+sqlite >= 3.31.1
+scikit-learn >= 0.22.1 
+lightgbm >= 2.3.1
